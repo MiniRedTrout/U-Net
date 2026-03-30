@@ -1,0 +1,12 @@
+pyproject.toml
+modules/__init__.py
+modules/config.py
+modules/data.py
+modules/loss.py
+modules/train.py
+unet_segmentation.egg-info/PKG-INFO
+unet_segmentation.egg-info/SOURCES.txt
+unet_segmentation.egg-info/dependency_links.txt
+unet_segmentation.egg-info/entry_points.txt
+unet_segmentation.egg-info/requires.txt
+unet_segmentation.egg-info/top_level.txt

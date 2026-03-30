@@ -1,0 +1,29 @@
+Metadata-Version: 2.4
+Name: unet-segmentation
+Version: 0.1.0
+Summary: U-Net модель для сегментации медицинских/архитектурных изображений
+Author-email: Your Name <your.email@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/your-username/unet-segmentation
+Project-URL: Bug Reports, https://github.com/your-username/unet-segmentation/issues
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: torch>=2.0.0
+Requires-Dist: torchvision>=0.15.0
+Requires-Dist: pytorch-lightning>=2.0.0
+Requires-Dist: torchmetrics>=1.0.0
+Requires-Dist: numpy>=1.24.0
+Requires-Dist: opencv-python>=4.8.0
+Requires-Dist: pillow>=10.0.0
+Requires-Dist: albumentations>=1.3.0
+Requires-Dist: scikit-learn>=1.3.0
+Requires-Dist: omegaconf>=2.3.0
+Requires-Dist: hydra-core>=1.3.0
+Requires-Dist: clearml>=1.10.0
+Requires-Dist: matplotlib>=3.7.0
+Requires-Dist: kagglehub>=0.1.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: jupyter>=1.0.0; extra == "dev"
+Requires-Dist: ipykernel>=6.0.0; extra == "dev"

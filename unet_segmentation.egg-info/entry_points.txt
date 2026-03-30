@@ -1,0 +1,2 @@
+[console_scripts]
+train-unet = modules.train:main

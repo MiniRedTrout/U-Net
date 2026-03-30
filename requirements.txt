@@ -1,0 +1,15 @@
+torch
+torchvision
+pytorch-lightning
+opencv-python
+albumentations
+Pillow
+omegaconf
+hydra-core
+clearml
+scikit-learn
+numpy
+tqdm
+python-dotenv
+ruff
+isort
