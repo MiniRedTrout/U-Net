@@ -1,0 +1,19 @@
+name: baseline
+description: "Baseline experiment with standard UNet"
+
+model:
+  name: unet
+  features: [32, 64, 128, 256]
+  dropout: 0.2
+
+training:
+  epochs: 5
+  learning_rate: 0.0002
+  batch_size: 16
+
+transforms:
+  name: medium
+
+data:
+  split:
+    test_size: 0.2

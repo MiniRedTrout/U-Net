@@ -1,0 +1,119 @@
+model:
+  _target_: models.UNet
+  name: unet
+  in_channels: 1
+  out_channels: 2
+  features:
+  - 32
+  - 64
+  - 128
+  - 256
+  activation: relu
+  dropout: 0.2
+  batch_norm: true
+  bilinear: true
+training:
+  name: default
+  batch_size: 16
+  epochs: 5
+  learning_rate: 0.0002
+  optimizer:
+    _target_: torch.optim.AdamW
+    name: adamw
+    lr: ${training.learning_rate}
+    weight_decay: 0.01
+    betas:
+    - 0.9
+    - 0.999
+    eps: 1.0e-08
+  scheduler:
+    _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+    name: reduce_lr_on_plateau
+    mode: min
+    factor: 0.5
+    patience: 5
+    min_lr: 1.0e-07
+  grad_clip: 1.0
+  loss:
+    _target_: losses.CompositeLoss
+    dice_weight: 0.5
+    ce_weight: 0.5
+    focal_gamma: 2.0
+  metrics:
+  - name: dice
+  - name: iou
+  - name: accuracy
+  - name: precision
+  - name: recall
+  early_stopping:
+    enabled: true
+    patience: 12
+    min_delta: 0.001
+    restore_best_weights: true
+    monitor: val_dice
+    mode: max
+data:
+  _target_: data.AortaDataModule
+  name: aorta
+  original_dir: /content/drive/MyDrive/segmentation_project/data
+  output_dir: /content/drive/MyDrive/segmentation_project/data/base_patient
+  split:
+    test_size: 0.2
+    val_size: 0.1
+    random_state: 42
+    stratify: true
+  image_size: ${transforms.image_size}
+  num_workers: 2
+  pin_memory: true
+  image_format: png
+  mask_format: png
+  class_weights:
+  - 0.2
+  - 0.8
+transforms:
+  _target_: data.AortaDataModule
+  name: aorta
+  original_dir: /content/drive/MyDrive/segmentation_project/data
+  output_dir: /content/drive/MyDrive/segmentation_project/data/base_patient
+  split:
+    test_size: 0.2
+    val_size: 0.1
+    random_state: 42
+    stratify: true
+  image_size: ${transforms.image_size}
+  num_workers: 2
+  pin_memory: true
+  image_format: png
+  mask_format: png
+  class_weights:
+  - 0.2
+  - 0.8
+experiment:
+  name: baseline
+  description: Baseline experiment with standard UNet
+  model:
+    name: unet
+    features:
+    - 32
+    - 64
+    - 128
+    - 256
+    dropout: 0.2
+  training:
+    epochs: 5
+    learning_rate: 0.0002
+    batch_size: 16
+  transforms:
+    name: medium
+  data:
+    split:
+      test_size: 0.2
+project:
+  name: IMAGETBADAortaSegmentation
+  task_name: ${model.name}_${training.epochs}epochs
+  version: '1.0'
+logging:
+  use_clearml: true
+  save_checkpoints: true
+  checkpoint_dir: checkpoints/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  log_freq: 10

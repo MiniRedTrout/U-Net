@@ -1,0 +1,25 @@
+defaults:
+  - model: unet
+  - training: default
+  - data: aorta
+  - transforms: medium
+  - experiment: baseline
+  - _self_
+
+project:
+  name: "IMAGETBADAortaSegmentation"
+  task_name: "${model.name}_${training.epochs}epochs"
+  version: "1.0"
+
+logging:
+  use_clearml: true
+  save_checkpoints: true
+  checkpoint_dir: "checkpoints/${now:%Y-%m-%d}/${now:%H-%M-%S}"
+  log_freq: 10
+
+hydra:
+  run:
+    dir: ./outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: ./multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}

@@ -1,0 +1,11 @@
+_target_: models.UNet
+name: unet
+
+in_channel: 1
+out_channel: 2
+features: [32, 64, 128, 256]
+activation: "relu"
+dropout: 0.2
+batch_norm: true
+
+bilinear: true

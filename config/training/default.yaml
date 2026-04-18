@@ -1,0 +1,44 @@
+name: default
+
+batch_size: 16
+epochs: 5
+learning_rate: 0.0002
+weight_decay: 0.01
+optimizer:
+  _target_: torch.optim.AdamW
+  name: adamw
+  lr: ${training.learning_rate}
+  weight_decay: 0.01
+  betas: [0.9, 0.999]
+  eps: 1e-8
+
+scheduler:
+  _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+  name: reduce_lr_on_plateau
+  mode: min
+  factor: 0.5
+  patience: 5
+  min_lr: 1e-7
+
+grad_clip: 1.0
+
+loss:
+  _target_: losses.CompositeLoss
+  dice_weight: 0.5
+  ce_weight: 0.5
+  focal_gamma: 2.0
+
+metrics:
+  - name: dice
+  - name: iou
+  - name: accuracy
+  - name: precision
+  - name: recall
+
+early_stopping:
+  enabled: true
+  patience: 12
+  min_delta: 0.001
+  restore_best_weights: true
+  monitor: val_dice
+  mode: max

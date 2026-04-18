@@ -1,0 +1,20 @@
+_target_: data.AortaDataModule
+name: aorta
+
+original_dir: "/content/drive/MyDrive/segmentation_project/data"
+output_dir: "./base_patient"
+
+split:
+  test_size: 0.2
+  val_size: 0.1
+  random_state: 42
+  stratify: true
+
+image_size: 256
+num_workers: 2
+pin_memory: true
+
+image_format: "png"
+mask_format: "png"
+
+class_weights: [0.2, 0.8] 

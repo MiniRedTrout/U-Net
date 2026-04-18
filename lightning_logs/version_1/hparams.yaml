@@ -1,0 +1,59 @@
+config:
+  data:
+    image_size: 256
+    num_workers: 2
+    original_dir: /content/drive/MyDrive/segmentation_project/data
+    output: /content/drive/MyDrive/segmentation_project/data/base_patient
+    random_state: 42
+    test_size: 0.2
+  early_stopping:
+    enabled: true
+    min_delta: 0.001
+    patience: 12
+    restore_best_weights: true
+  logging:
+    checkpoint_dir: checkpoints/
+    save_checkpoints: true
+    use_clearml: true
+  model:
+    activation: relu
+    batch_norm: true
+    dropout: 0.2
+    features:
+    - 32
+    - 64
+    - 128
+    - 256
+    in_channel: 1
+    name: unet
+    out_channel: 2
+  optimizer:
+    learning_rate: 0.0002
+    name: adamw
+    weight_decay: 0.01
+  project:
+    name: IMAGETBADAortaSegmentation
+    task_name: UNet_unet_5epochs
+  scheduler:
+    mode: min
+    name: reduce_lr_on_plateau
+  training:
+    batch_size: 16
+    epochs: 5
+    grad_clip: 1.0
+    learning_rate: 0.0002
+    optimizer: AdamW
+    weight_decay: 0.01
+  transforms:
+    augmentation:
+      affine_p: 0.5
+      brightness_contrast_p: 0.3
+      horizontal_flip_p: 0.5
+      noise_p: 0.2
+      rotate90_p: 0.5
+      vertical_flip_p: 0.3
+    image_size: 256
+task: !!python/object:clearml.task.Task
+  id: 88a4d9db81d84e4a8254a594b4444cce
+  main: false
+  offline: null

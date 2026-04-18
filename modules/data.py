@@ -1,6 +1,5 @@
 import os
 import shutil
-from pathlib import Path
 
 import albumentations as A
 import cv2
@@ -12,17 +11,15 @@ from torch.utils.data import DataLoader, Dataset
 
 class Dataset(Dataset):
     def __init__(self,images_dir,labels_dir,transform):
-        self.images_dir = images_dir 
+        self.images_dir = images_dir
         self.labels_dir = labels_dir
         self.transform = transform
         self.image_f = sorted([
-            f for f in os.listdir(images_dir) 
-            if f.endswith('_image.png')
-        ])
+            f for f in os.listdir(images_dir) if f.endswith('_image.png')
+            ])
         self.label_f = sorted([
-            f for f in os.listdir(labels_dir) 
-            if f.endswith('_label.png')
-        ])
+            f for f in os.listdir(labels_dir) if f.endswith('_label.png')
+            ])
     def __len__(self):
         return len(self.image_f)
     def __getitem__(self,idx):
@@ -34,13 +31,13 @@ class Dataset(Dataset):
         image = transformed['image']
         label = transformed['mask']
         label = (label > 0).long()
-        return image,label 
+        return image,label
 
 class LightDataModule(L.LightningDataModule):
     def __init__(self,config):
         super().__init__()
-        self.config = config 
-        self.batch_size = config.training.batch_size 
+        self.config = config
+        self.batch_size = config.training.batch_size
         self.num_workers = config.data.num_workers
     def prepare_data(self):
         path = self.config.data.original_dir
@@ -65,13 +62,11 @@ class LightDataModule(L.LightningDataModule):
             os.makedirs(lbl_dir, exist_ok=True)
             for img_file, lbl_file in pair:
                 shutil.copy2(
-                    os.path.join(im_path, img_file), 
-                    os.path.join(img_dir, img_file)
-                )
+                    os.path.join(im_path, img_file),
+                      os.path.join(img_dir, img_file))
                 shutil.copy2(
                     os.path.join(lb_path, lbl_file),
-                    os.path.join(lbl_dir, lbl_file)
-                )
+                      os.path.join(lbl_dir, lbl_file))
         self.paths = {
             'train_images': os.path.join(output, 'train', 'images'),
             'train_labels': os.path.join(output, 'train', 'labels'),
@@ -81,23 +76,18 @@ class LightDataModule(L.LightningDataModule):
     def setup(self,stage=None):
         train_transform = A.Compose([
             A.Resize(
-                self.config.transforms.image_size, 
-                self.config.transforms.image_size
-            ),
+                self.config.transforms.image_size,
+                self.config.transforms.image_size),
             A.HorizontalFlip(p=0.5),
             A.VerticalFlip(p=0.3),
             A.RandomRotate90(p=0.5),
-            A.Normalize(
-                mean=[0.5],
-                std=[0.5]
-            ),
+            A.Normalize(mean=[0.5], std=[0.5]),
             ToTensorV2(),
         ])
         val_transform = A.Compose([
             A.Resize(
                 self.config.transforms.image_size,
-                self.config.transforms.image_size
-            ),
+                  self.config.transforms.image_size),
             A.Normalize(mean=[0.5], std=[0.5]),
             ToTensorV2(),
         ])
@@ -127,5 +117,3 @@ class LightDataModule(L.LightningDataModule):
             shuffle=False,
             num_workers=self.num_workers
         )
-
-    

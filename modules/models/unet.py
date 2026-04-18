@@ -1,8 +1,6 @@
 import pytorch_lightning as L
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from clearml import Logger, Task
 from torchmetrics import JaccardIndex, Precision, Recall
 from torchmetrics.segmentation import DiceScore
 
@@ -18,7 +16,7 @@ class UNet(nn.Module):
         self.pool2 = nn.MaxPool2d(2)
         self.enc3 = self._contract(128, 256)
         self.pool3 = nn.MaxPool2d(2)
-        
+
         self.bottleneck = nn.Sequential(
             nn.Conv2d(256, 512, 3, padding=1),
             nn.ReLU(),
@@ -28,11 +26,11 @@ class UNet(nn.Module):
             nn.BatchNorm2d(512),
             nn.ConvTranspose2d(512, 256, 2, stride=2)
         )
-        
+
         self.dec3 = self._exp(512, 256, 128)
         self.dec2 = self._exp(256, 128, 64)
         self.fc = self._final(128, 64, out_channel)
-    
+
     def _contract(self, in_channels, out_channels):
         return nn.Sequential(
             nn.Conv2d(in_channels, out_channels, 3, padding=1),
@@ -42,7 +40,7 @@ class UNet(nn.Module):
             nn.ReLU(),
             nn.BatchNorm2d(out_channels)
         )
-    
+
     def _exp(self, in_channels, hidden_channels, out_channels):
         return nn.Sequential(
             nn.Conv2d(in_channels, hidden_channels, 3, padding=1),
@@ -53,7 +51,7 @@ class UNet(nn.Module):
             nn.BatchNorm2d(hidden_channels),
             nn.ConvTranspose2d(hidden_channels, out_channels, 2, stride=2)
         )
-    
+
     def _final(self, in_channels, hidden_channels, out_channels):
         return nn.Sequential(
             nn.Conv2d(in_channels, hidden_channels, 3, padding=1),
@@ -64,7 +62,7 @@ class UNet(nn.Module):
             nn.BatchNorm2d(hidden_channels),
             nn.Conv2d(hidden_channels, out_channels, 3, padding=1)
         )
-    
+
     def _c_c(self, up, down):
         _, _, hu, wu = up.shape
         _, _, hb, wb = down.shape
@@ -72,7 +70,7 @@ class UNet(nn.Module):
         cw = (wb - wu) // 2
         cropped = down[:, :, ch:ch+hu, cw:cw+wu]
         return torch.cat([up, cropped], dim=1)
-    
+
     def forward(self, x):
         e1 = self.enc1(x)
         p1 = self.pool1(e1)
@@ -93,11 +91,11 @@ class LightUNet(L.LightningModule):
     def __init__(self,config,task):
         super().__init__()
         self.save_hyperparameters()
-        self.config = config 
+        self.config = config
         self.model = UNet(config.model.in_channel,config.model.out_channel)
         self.criterion = Loss()
         self.best_val_epoch = 0
-        self.task = task 
+        self.task = task
         self.val_dice = DiceScore(num_classes=2, average='macro')
         self.train_dice = DiceScore(num_classes=2, average='macro')
         self.iou = JaccardIndex(num_classes=2, average='macro',task='multiclass')
@@ -106,7 +104,7 @@ class LightUNet(L.LightningModule):
     def forward(self, x):
         return self.model(x)
     def training_step(self,batch,batch_idx):
-        images,labels = batch 
+        images,labels = batch
         labels = labels.long()
         out = self(images)
         loss = self.criterion(out,labels)
@@ -116,9 +114,9 @@ class LightUNet(L.LightningModule):
             logger = self.task.get_logger()
             logger.report_scalar('train','loss',loss.item(),iteration=self.global_step)
             logger.report_scalar('train','dice',dice.item(),iteration=self.global_step)
-        return loss 
+        return loss
     def validation_step(self,batch,batch_idx):
-        images,labels = batch 
+        images,labels = batch
         labels = labels.long()
         out = self(images)
         loss = self.criterion(out,labels)
@@ -132,65 +130,65 @@ class LightUNet(L.LightningModule):
             'val',
             'loss',
             loss.item(),
-            iteration=self.current_epoch
+            iteration=self.global_step
         )
         logger.report_scalar(
             'val',
             'dice',
             dice.item(),
-            iteration=self.current_epoch
+            iteration=self.global_step
         )
         logger.report_scalar(
             'val',
             'iou',
             iou.item(),
-            iteration=self.current_epoch
+            iteration=self.global_step
         )
         logger.report_scalar(
             'val',
             'precision',
             precision.item(),
-            iteration=self.current_epoch
+            iteration=self.global_step
         )
         logger.report_scalar(
             'val',
             'recall',
             recall.item(),
-            iteration=self.current_epoch
+            iteration=self.global_step
         )
         self.log(
             'val_loss',
             loss,
-            on_step=False, 
-            on_epoch=True, 
+            on_step=False,
+            on_epoch=True,
             prog_bar=True
         )
         self.log(
-            'val_dice', 
-            dice, 
-            on_step=False, 
-            on_epoch=True, 
+            'val_dice',
+            dice,
+            on_step=False,
+            on_epoch=True,
             prog_bar=True
         )
         self.log(
             'val_iou',
-            iou, 
-            on_step=False, 
-            on_epoch=True, 
+            iou,
+            on_step=False,
+            on_epoch=True,
             prog_bar=True
         )
         self.log(
-            'val_precision', 
-            precision, 
+            'val_precision',
+            precision,
             on_step=False,
-            on_epoch=True, 
+            on_epoch=True,
             prog_bar=True
         )
         self.log(
             'val_recall',
-            recall, 
+            recall,
             on_step=False,
-            on_epoch=True, 
+            on_epoch=True,
             prog_bar=True
         )
         return {

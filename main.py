@@ -1,8 +1,9 @@
 import os
-import sys
 
+import hydra
+import kagglehub
 from clearml import Task
-from google.colab import userdata
+from omegaconf import DictConfig
 
 from modules.train import train
 
@@ -16,7 +17,11 @@ Task.set_credentials(
     key=access_key,
     secret=secret_key
 )
-
+path = kagglehub.dataset_download("zaryabahmadkhan/2d-slicing-of-imagetbad-dataset")
+@hydra.main(config_path="config", config_name="config", version_base=None)
+def main(cfg: DictConfig):
+  cfg.data.original_dir = path
+  model, trainer = train(cfg)
 if __name__ == '__main__':
-    model, trainer = train()
+    main()
 

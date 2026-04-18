@@ -1,0 +1,124 @@
+config:
+  data:
+    _target_: data.AortaDataModule
+    class_weights:
+    - 0.2
+    - 0.8
+    image_format: png
+    image_size: 256
+    mask_format: png
+    name: aorta
+    num_workers: 2
+    original_dir: /root/.cache/kagglehub/datasets/zaryabahmadkhan/2d-slicing-of-imagetbad-dataset/versions/1
+    output: content/base_patient
+    pin_memory: true
+    random_state: 42
+    stratify: true
+    test_size: 0.2
+    val_size: 0.1
+  experiment:
+    data:
+      split:
+        test_size: 0.2
+    description: Baseline experiment with standard UNet
+    model:
+      dropout: 0.2
+      features:
+      - 32
+      - 64
+      - 128
+      - 256
+      name: unet
+    name: baseline
+    training:
+      batch_size: 16
+      epochs: 5
+      learning_rate: 0.0002
+    transforms:
+      name: medium
+  logging:
+    checkpoint_dir: checkpoints/2026-04-18/10-22-17
+    log_freq: 10
+    save_checkpoints: true
+    use_clearml: true
+  model:
+    _target_: models.UNet
+    activation: relu
+    batch_norm: true
+    bilinear: true
+    dropout: 0.2
+    features:
+    - 32
+    - 64
+    - 128
+    - 256
+    in_channel: 1
+    name: unet
+    out_channel: 2
+  project:
+    name: IMAGETBADAortaSegmentation
+    task_name: unet_5epochs
+    version: '1.0'
+  training:
+    batch_size: 16
+    early_stopping:
+      enabled: true
+      min_delta: 0.001
+      mode: max
+      monitor: val_dice
+      patience: 12
+      restore_best_weights: true
+    epochs: 5
+    grad_clip: 1.0
+    learning_rate: 0.0002
+    loss:
+      _target_: losses.CompositeLoss
+      ce_weight: 0.5
+      dice_weight: 0.5
+      focal_gamma: 2.0
+    metrics:
+    - name: dice
+    - name: iou
+    - name: accuracy
+    - name: precision
+    - name: recall
+    name: default
+    optimizer:
+      _target_: torch.optim.AdamW
+      betas:
+      - 0.9
+      - 0.999
+      eps: 1.0e-08
+      lr: 0.0002
+      name: adamw
+      weight_decay: 0.01
+    scheduler:
+      _target_: torch.optim.lr_scheduler.ReduceLROnPlateau
+      factor: 0.5
+      min_lr: 1.0e-07
+      mode: min
+      name: reduce_lr_on_plateau
+      patience: 5
+    weight_decay: 0.01
+  transforms:
+    _target_: data.AortaDataModule
+    class_weights:
+    - 0.2
+    - 0.8
+    image_format: png
+    image_size: 256
+    mask_format: png
+    name: aorta
+    num_workers: 2
+    original_dir: /content/drive/MyDrive/segmentation_project/data
+    output_dir: ./base_patient
+    pin_memory: true
+    split:
+      random_state: 42
+      stratify: true
+      test_size: 0.2
+      val_size: 0.1
+task: !!python/object:clearml.task.Task
+  id: f492741448a14806a49496250fd83215
+  main: false
+  offline: null
